@@ -102,18 +102,33 @@ const verifyEmail = (req, res) => {
     process.env.MY_SECRET,
     (error, decoded) =>{
       if(error){
-        return res.status(400).json({message: 'Invalid token'})
+        return res.render('../views/invalidToken')
       }
+
       const userEmail = decoded.email;
-      
+      const verified = true;
+
+      try {
+        
+      connection.query(
+        "UPDATE Users SET verified = ? WHERE email = ?",
+        [verified, userEmail],
+        (err, result, fields) =>{
+          if(err){
+            return res.status(500).json({message: "An error occurred"})
+          }
+
+          return res.render('../views/emailVerified')
+        }
+      )
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json("An error occurred")
+      }
+
+
     }
   )
-  
-
-  
-
-
-  return res.json("Done")
-};
+  };
 
 module.exports = { handleNewUser, verifyEmail };
